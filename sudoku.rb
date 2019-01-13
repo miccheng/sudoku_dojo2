@@ -107,7 +107,7 @@ class Sudoku
 
     grid_y = (row_index / GRID_WIDTH.to_f).ceil
     grid_x = (col_index / GRID_WIDTH.to_f).ceil
-    grid_index = grid_x + ((grid_y - 1) * GRID_WIDTH)
+    grid_index = ((grid_y - 1) * GRID_WIDTH) + grid_x
 
     [row_index, col_index, grid_index]
   end
@@ -132,11 +132,12 @@ class Sudoku
     start_row = ((row_index - 1) * GRID_WIDTH) + 1
 
     rows = (start_row..start_row+2).map { |n| row(n, tiles) }
-    col_offset = index % 3
-    col_offset = 3 if col_offset == 0
 
+    col_offset = index % 3
+    col_offset = 3 if col_offset.zero?
     col_start_index = (col_offset - 1) * GRID_WIDTH
-    rows.map { |row| row[col_start_index..col_start_index+2] }.flatten
+
+    rows.map { |row| row[col_start_index..(col_start_index + 2)] }.flatten
   end
 
   def blank_board
