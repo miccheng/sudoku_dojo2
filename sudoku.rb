@@ -141,7 +141,7 @@ class Sudoku
   end
 
   def blank_board
-    Array.new(81)
+    Array.new(BOARD_SIZE * BOARD_SIZE)
   end
 
   def blank_slots
