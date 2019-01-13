@@ -6,9 +6,9 @@ class Sudoku
 
   BOARD_SIZE = 9
   GRID_WIDTH = 3
-  DEFAULT_BLANK_SPACES = 40
+  DEFAULT_BLANKS = 40
 
-  def initialize(default_tiles=[], blank_slots=[], num_blanks=DEFAULT_BLANK_SPACES)
+  def initialize(default_tiles = [], blank_slots = [], num_blanks = DEFAULT_BLANKS)
     @tiles = default_tiles.empty? ? blank_board : default_tiles
     @blank_slots = blank_slots unless blank_slots.empty?
     @num_blanks = num_blanks
@@ -38,9 +38,7 @@ class Sudoku
   def display_puzzle
     puzzle = @tiles.dup
 
-    blank_slots.each do |index|
-      puzzle[index] = nil
-    end
+    blank_slots.each { |index| puzzle[index] = nil }
 
     display_board(puzzle)
   end
@@ -49,19 +47,18 @@ class Sudoku
     tiles.compact.uniq == tiles.compact
   end
 
-  def valid?(tiles=@tiles)
-    all_candidates = (1..BOARD_SIZE).reduce([]) do |m, n|
+  def valid?(tiles = @tiles)
+    all_candidates = (1..BOARD_SIZE).each_with_object([]) do |n, m|
       m << row(n, tiles)
       m << column(n, tiles)
       m << grid(n, tiles)
 
-      m
     end
 
     all_candidates.map { |candidate| Sudoku.check(candidate) }.all?
   end
 
-  def complete?(tiles=@tiles)
+  def complete?(tiles = @tiles)
     tiles.compact == tiles
   end
 
@@ -74,20 +71,18 @@ class Sudoku
     available_candidates.shuffle.each do |n|
       @tiles[index] = n
 
-      if index == (@tiles.count - 1) || do_fill_cell(index + 1)
-        return true
-      end
+      return true if index == (@tiles.count - 1) || do_fill_cell(index + 1)
     end
 
     @tiles[index] = nil
     false
   end
 
-  def display_board(tiles=@tiles)
+  def display_board(tiles = @tiles)
     puts '-------------------------'
     (1..BOARD_SIZE).each do |n|
       puts display_line(row(n, tiles))
-      puts '|-------+-------+-------|' if (n % 3) == 0 && n < 9
+      puts '|-------+-------+-------|' if (n % 3).zero? && n < 9
     end
     puts '-------------------------'
   end
@@ -95,20 +90,20 @@ class Sudoku
   def display_line(tiles)
     str = '|'
     tiles.each_with_index do |tile, index|
-      str += " #{tile.nil? ? ' ' : tile }"
-      str += ' |' if (index + 1) % 3 == 0
+      str += " #{tile.nil? ? ' ' : tile}"
+      str += ' |' if ((index + 1) % 3).zero?
     end
 
     str
   end
 
-  def coord_of(index, tiles=@tiles)
+  def coord_of(index)
     start_index = (index + 1)
 
     row_index = (start_index / BOARD_SIZE.to_f).ceil
 
     col_index = start_index % BOARD_SIZE
-    col_index = 9 if col_index == 0
+    col_index = 9 if col_index.zero?
 
     grid_y = (row_index / GRID_WIDTH.to_f).ceil
     grid_x = (col_index / GRID_WIDTH.to_f).ceil
@@ -117,23 +112,22 @@ class Sudoku
     [row_index, col_index, grid_index]
   end
 
-  def row(index, tiles=@tiles)
+  def row(index, tiles = @tiles)
     start_index = (index - 1)
     start_from = (start_index * BOARD_SIZE)
     tiles.slice(start_from, BOARD_SIZE)
   end
 
-  def column(index, tiles=@tiles)
+  def column(index, tiles = @tiles)
     start_index = (index - 1)
-    col_indexes = (BOARD_SIZE-1).times.reduce([start_index]) do |m, n|
+    col_indexes = (BOARD_SIZE - 1).times.each_with_object([start_index]) do |_, m|
       m << (m.last + BOARD_SIZE)
-      m
     end
 
     tiles.values_at(*col_indexes)
   end
 
-  def grid(index, tiles=@tiles)
+  def grid(index, tiles = @tiles)
     row_index = (index / GRID_WIDTH.to_f).ceil
     start_row = ((row_index - 1) * GRID_WIDTH) + 1
 
